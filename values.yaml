@@ -1,0 +1,35 @@
+image:
+ registry: docker.io
+ repository: truongdh1903/spark-2.4.6c
+ tag: latest
+## Spark master specific configuration
+master:
+ nodeSelector:
+  kubernetes.io/role: master
+## Tolerations for Spark master Pods assignment to k8s control plane
+  tolerations:
+    key: "node-role.kubernetes.io/master"
+    operator: "Equal"
+    value: ""
+    effect: "NoSchedule"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+## Spark worker specific configuration
+worker:
+ replicaCount: 3
+ resources:
+  limits:
+   cpu: 500m
+  requests:
+   cpu: 250m
+   memory: 256Mi
+## HPA configuration
+  autoscaling:
+    enabled: true
+    CpuTargetPercentage: 90
+    replicasMax: 25
+## Service parameters
+service:
+ type: LoadBalancer 
