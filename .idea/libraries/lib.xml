@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/spark/spark/python/lib/py4j-0.10.7-src.zip!/" />
+      <root url="jar://$PROJECT_DIR$/spark/spark/python/lib/pyspark.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

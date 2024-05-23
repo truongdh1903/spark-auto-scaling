@@ -1,0 +1,30 @@
+image:
+  registry: docker.io
+  repository: truongdh1903/spark-102
+  tag: latest
+master:
+  nodeSelector:
+    kubernetes.io/role: master
+  tolerations:
+  - key: "node-role.kubernetes.io/master"
+    operator: "Equal"
+    value: ""
+    effect: "NoSchedule"
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+worker:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 500m
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    CpuTargetPercentage: 90
+    replicasMax: 25
+service:
+  type: LoadBalancer 

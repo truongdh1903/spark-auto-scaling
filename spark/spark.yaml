@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master # Spark master deployment
+spec:
+  replicas: 1 # Single replica for the master
+  selector:
+    matchLabels:
+      app: spark-master # Label for master pods
+  template:
+    metadata:
+      labels: 
+        app: spark-master
+    spec:
+      containers:
+        - name: spark-master
+          image: truongdh1903/spark-2.4.6c:latest
+          resources:
+            requests: # Master resource requests
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 7077 # Port for master communication
+            - containerPort: 8080 # Port for master UI
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker # Spark worker deployment
+specs:
+  replicas: 3 # Initial number of worker replicas
+  selector:
+    matchLabels:
+      app: spark-worker # Label for worker pods
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      containers:
+        - name: spark-worker
+          image: truongdh1903/spark-2.4.6c:latest
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          env: # Environment variables for connecting to the master
+            - name: SPARK_MASTER_URL 
+              value: spark://spark-master:7077 # Replace with master service name
+            - name: SPARK_MASTER_HOST 
+              value: spark-master #

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/spark/benchmark/lib/spark-bench-2.3.0_0.4.0-RELEASE.jar!/" />
+      <root url="jar://$PROJECT_DIR$/spark/benchmark/lib/spark-bench-launch-2.3.0_0.4.0-RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
