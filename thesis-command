@@ -1,0 +1,39 @@
+kubectl port-forward svc/kubernetes-dashboard-kong-proxy --address 0.0.0.0 8443:443
+
+kubectl port-forward svc/my-release-kong-proxy --address 0.0.0.0 8443:443
+
+kubectl -n kubernetes-dashboard create token default
+
+helm uninstall spark -n kubernetes-dashboard
+
+kubectl port-forward svc/bth-grafana 3000:80 --namespace=monitoring
+
+kubectl port-forward svc/bth-kube-prometheus-stack-prometheus 9090:9090 --namespace=monitoring
+
+kubectl port-forward spark-master 8080:8080 --namespace=spark
+
+kubectl port-forward pod/spark-driver 4040:4040
+
+./bin/spark-bench.sh examples/spark-pi.conf
+
+helm install spark oci://registry-1.docker.io/bitnamicharts/spark --set worker.autoscaling.enabled=true --set worker.autoscaling.minReplicas=2 --set worker.autoscaling.maxReplicas=9 --set worker.autoscaling.targetCPU=80 --set worker.autoscaling.targetMemory=80 --set worker.coreLimit=2 --set worker.memoryLimit=500m --set image.repository=truongdh1903/spark-3.5.1b --set image.tag=latest -n spark
+
+spark-submit --master k8s://https://5b1110ad-1c19-4a94-b088-282ed61e97b1.k8s.ondigitalocean.com --deploy-mode cluster -c spark.kubernetes.executor.request.cores=250m -c spark.kubernetes.executor.limit.cores=500m -c spark.executor.memory=512m -c spark.kubernetes.authenticate.driver.serviceAccountName=spark -c spark.kubernetes.authenticate.executor.serviceAccountName=spark -c spark.kubernetes.allocation.pods.allocator=statefulset -c spark.kubernetes.container.image.pullPolicy=Always -c spark.kubernetes.container.image=truongdh1903/spark-3.5.1l -c spark.executor.instances=3 -c spark.kubernetes.namespace=no-autoscaling --class org.apache.spark.examples.SparkPi --name spark-examples local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar 10000
+
+kubectl autoscale statefulset spark-s-spark-aa673ce2a83643bc9cdf910a921cb281-0 --min=2 --max=8 --cpu-percent=80
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+helm upgrade -i kubernetes-dashboard/kubernetes-dashboard --name kubernetes-dashboard --set=service.externalPort=8443,resources.limits.cpu=200m,metricsScraper.enabled=true -n kubernetes-dashboard
+
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --set=service.externalPort=8443,resources.limits.cpu=200m,metricsScraper.enabled=true -n kubernetes-dashboard 
+
+spark-submit --master k8s://https://5b1110ad-1c19-4a94-b088-282ed61e97b1.k8s.ondigitalocean.com --deploy-mode cluster -c spark.kubernetes.executor.request.cores=250m -c spark.kubernetes.executor.limit.cores=500m -c spark.executor.memory=512m -c spark.kubernetes.authenticate.driver.serviceAccountName=spark -c spark.kubernetes.authenticate.executor.serviceAccountName=spark -c spark.kubernetes.allocation.pods.allocator=statefulset -c spark.kubernetes.container.image.pullPolicy=Always -c spark.kubernetes.container.image=truongdh1903/spark-3.5.1l -c spark.executor.instances=2 -c spark.kubernetes.namespace=no-autoscaling --class org.example.CreditRiskAssessment --name credit-risk-assessment local:///tmp/credit-risk-assessment.jar 10000
+
+
+spark-submit --master k8s://https://5b1110ad-1c19-4a94-b088-282ed61e97b1.k8s.ondigitalocean.com --deploy-mode cluster -c spark.kubernetes.executor.request.cores=250m -c spark.kubernetes.executor.limit.cores=500m -c spark.executor.memory=512m -c spark.kubernetes.authenticate.driver.serviceAccountName=spark-sa -c spark.kubernetes.authenticate.executor.serviceAccountName=spark-sa -c spark.kubernetes.allocation.pods.allocator=statefulset -c spark.kubernetes.container.image.pullPolicy=Always -c spark.kubernetes.container.image=truongdh1903/spark-3.5.1n -c spark.executor.instances=3 -c spark.kubernetes.namespace=no-autoscaling -c spark.ui.port=4040 -c spark.executor.processTreeMetrics.enabled=true -c spark.kubernetes.driver.annotation.prometheus.io/scrape=true -c spark.kubernetes.driver.annotation.prometheus.io/path=/metrics/executors/prometheus/ -c spark.kubernetes.driver.annotation.prometheus.io/port=4040 -c spark.metrics.conf.*.sink.prometheusServlet.class=org.apache.spark.metrics.sink.PrometheusServlet -c spark.metrics.conf.*.sink.prometheusServlet.path=/metrics/prometheus -c spark.metrics.conf.master.sink.prometheusServlet.path=/metrics/master/prometheus -c spark.metrics.conf.applications.sink.prometheusServlet.path=/metrics/applications/prometheus -c spark.metrics.conf.*.sink.jmx.class=org.apache.spark.metrics.sink.JmxSink -c spark.ui.prometheus.enabled=true -c spark.kubernetes.driver.label.app=spark -c spark.kubernetes.executor.label.app=spark -c spark.driver.extraJavaOptions=-javaagent:/prometheus/jmx_prometheus_javaagent-0.11.0.jar=9091:local://$SPARK_HOME/conf/prometheus-config.yml -c spark.kubernetes.allocation.pods.allocator=statefulset --class org.apache.spark.examples.SparkPi --name spark-examples local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar 1000000
+
+kubectl get svc -n no-autoscaling
+kubectl describe svc spark-examples-b538228fa4c3cad7-driver-svc -n no-autoscaling
+kubectl label svc spark-examples-b538228fa4c3cad7-driver-svc spark-role=driver -n no-autoscaling
+
